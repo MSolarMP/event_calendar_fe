@@ -137,7 +137,7 @@ const Calendar: React.FC = () => {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', overflowY: 'auto', height: 'fit-content' }}>
                 {dayEvents.map(event => (
-                    <div key={event.id} onClick={() => handleEventClick(event)} style={{ cursor: 'pointer', marginBottom: '4px', padding: '4px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
+                    <div key={event.id} onClick={() => handleEventClick(event)} style={{ cursor: 'pointer', marginBottom: '4px', padding: '4px', backgroundColor: '#f0f0f0' }}>
                         {event.name}
                     </div>
                 ))}
@@ -166,7 +166,7 @@ const Calendar: React.FC = () => {
             </div>
 
             {/* Calendar grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
                 {/* Weekday headers */}
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                     <div key={day} style={{ textAlign: 'center', backgroundColor: '#ffffff', padding: '10px', fontWeight: 'bold' }}>
@@ -189,7 +189,6 @@ const Calendar: React.FC = () => {
                                 backgroundColor: isToday ? '#f0f0f0' : '#ffffff',
                                 padding: '10px',
                                 border: '1px solid #ccc',
-                                borderRadius: '4px',
                                 opacity: !isCurrentMonth ? 0.5 : 1,
                                 overflowY: 'auto',
                             }}
