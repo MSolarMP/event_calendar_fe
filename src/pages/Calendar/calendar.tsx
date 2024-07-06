@@ -103,9 +103,18 @@ const Calendar: React.FC = () => {
         setFilter({ ...filter, endDate: event.target.value });
     };
 
-    const handleCheckboxChange = (name: string, selectedOptions: string[]) => {
-        setFilter({ ...filter, [name]: selectedOptions });
+    const handleCheckboxChange = (value: string, category: string, checked: boolean) => {
+        let updatedFilters = { ...filter };
+
+        if (checked) {
+            updatedFilters[category] = [...(updatedFilters[category] as string[]), value];
+        } else {
+            updatedFilters[category] = (updatedFilters[category] as string[]).filter(item => item !== value);
+        }
+
+        setFilter(updatedFilters);
     };
+
 
     const renderDayEvents = (day: number) => {
         const dayEvents = dummyEvents.filter(event => {
@@ -126,7 +135,7 @@ const Calendar: React.FC = () => {
         });
 
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', overflowY: 'auto', height: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', overflowY: 'auto', height: 'fit-content' }}>
                 {dayEvents.map(event => (
                     <div key={event.id} onClick={() => handleEventClick(event)} style={{ cursor: 'pointer', marginBottom: '4px', padding: '4px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
                         {event.name}
@@ -144,9 +153,9 @@ const Calendar: React.FC = () => {
                 <input type="text" placeholder="Search by description" value={filter.description} onChange={handleDescriptionChange} />
                 <input type="date" placeholder="Start Date" value={filter.startDate} onChange={handleStartDateChange} />
                 <input type="date" placeholder="End Date" value={filter.endDate} onChange={handleEndDateChange} />
-                <CheckboxDropdown options={types} selectedOptions={filter.types} onChange={(selected: string[]) => handleCheckboxChange('types', selected)} />
-                <CheckboxDropdown options={locations} selectedOptions={filter.locations} onChange={(selected: string[]) => handleCheckboxChange('locations', selected)} />
-                <CheckboxDropdown options={organizers} selectedOptions={filter.organizers} onChange={(selected: string[]) => handleCheckboxChange('organizers', selected)} />
+                <CheckboxDropdown options={types} selectedOptions={filter.types} onChange={(selected, checked) => handleCheckboxChange(selected, 'types', checked)} />
+                <CheckboxDropdown options={locations} selectedOptions={filter.locations} onChange={(selected, checked) => handleCheckboxChange(selected, 'locations', checked)} />
+                <CheckboxDropdown options={organizers} selectedOptions={filter.organizers} onChange={(selected, checked) => handleCheckboxChange(selected, 'organizers', checked)} />
             </div>
 
             {/* Month and navigation */}
@@ -160,7 +169,7 @@ const Calendar: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
                 {/* Weekday headers */}
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} style={{ textAlign: 'center', backgroundColor: '#ffffff', padding: '10px', fontWeight: 'bold', border: '1px solid #ccc', borderRadius: '4px' }}>
+                    <div key={day} style={{ textAlign: 'center', backgroundColor: '#ffffff', padding: '10px', fontWeight: 'bold' }}>
                         {day}
                     </div>
                 ))}
@@ -173,16 +182,20 @@ const Calendar: React.FC = () => {
                     const isToday = isCurrentMonth && dayDate.toDateString() === new Date().toDateString();
 
                     return (
-                        <div key={index} style={{
-                            textAlign: 'center',
-                            backgroundColor: isToday ? '#f0f0f0' : '#ffffff',
-                            padding: '10px',
-                            border: '1px solid #ccc',
-                            borderRadius: '4px',
-                            opacity: !isCurrentMonth ? 0.5 : 1,
-                            height: '100px',
-                            overflowY: 'auto',
-                        }}>
+                        <div
+                            key={index}
+                            style={{
+                                textAlign: 'center',
+                                backgroundColor: isToday ? '#f0f0f0' : '#ffffff',
+                                padding: '10px',
+                                border: '1px solid #ccc',
+                                borderRadius: '4px',
+                                opacity: !isCurrentMonth ? 0.5 : 1,
+                                height: '100px',
+                                width: '150px',
+                                overflowY: 'auto',
+                            }}
+                        >
                             {isCurrentMonth && (
                                 <>
                                     <div>{day}</div>
