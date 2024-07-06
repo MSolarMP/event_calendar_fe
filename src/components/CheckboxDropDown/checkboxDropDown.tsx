@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface Option {
     id: string;
@@ -12,35 +12,45 @@ interface CheckboxDropdownProps {
 }
 
 const CheckboxDropdown: React.FC<CheckboxDropdownProps> = ({ options, selectedOptions, onChange }) => {
-    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleToggle = () => {
+        setIsOpen(!isOpen);
+    };
+
+    const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { value, checked } = event.target;
-        let updatedOptions = [...selectedOptions];
-
-        if (checked && !updatedOptions.includes(value)) {
-            updatedOptions.push(value);
+        if (checked) {
+            onChange([...selectedOptions, value]);
         } else {
-            updatedOptions = updatedOptions.filter((option) => option !== value);
+            onChange(selectedOptions.filter((option) => option !== value));
         }
-
-        onChange(updatedOptions);
     };
 
     return (
         <div style={{ position: 'relative' }}>
-            <button className="dropdown-btn">Dropdown</button>
-            <div className="dropdown-content">
+            <select multiple={true} value={selectedOptions} onChange={() => {}} onClick={handleToggle}>
                 {options.map((option) => (
-                    <label key={option.id}>
-                        <input
-                            type="checkbox"
-                            value={option.name}
-                            checked={selectedOptions.includes(option.name)}
-                            onChange={handleCheckboxChange}
-                        />
+                    <option key={option.id} value={option.name}>
                         {option.name}
-                    </label>
+                    </option>
                 ))}
-            </div>
+            </select>
+            {isOpen && (
+                <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 100, backgroundColor: '#ffffff', boxShadow: '0px 8px 16px 0px rgba(0,0,0,0.2)', borderRadius: '4px', maxHeight: '200px', overflowY: 'auto' }}>
+                    {options.map((option) => (
+                        <label key={option.id} style={{ display: 'block', padding: '8px 12px', cursor: 'pointer' }}>
+                            <input
+                                type="checkbox"
+                                value={option.name}
+                                checked={selectedOptions.includes(option.name)}
+                                onChange={handleOptionChange}
+                            />
+                            {option.name}
+                        </label>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

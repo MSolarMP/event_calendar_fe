@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import CheckboxDropdown from "../../components/CheckboxDropDown/checkboxDropDown"; // Import your CheckboxDropdown component here
 
 // Dummy data for events
 const dummyEvents = [
@@ -46,39 +47,6 @@ interface FilterState {
     organizers: string[];
     [key: string]: string | string[];
 }
-
-interface Option {
-    id: string;
-    name: string;
-}
-
-interface CheckboxDropdownProps {
-    options: Option[];
-    selectedOptions: string[];
-    onChange: (selected: string[]) => void;
-}
-
-const CheckboxDropdown: React.FC<CheckboxDropdownProps> = ({ options, selectedOptions, onChange }) => {
-    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { value, checked } = event.target;
-        if (checked) {
-            onChange([...selectedOptions, value]);
-        } else {
-            onChange(selectedOptions.filter(option => option !== value));
-        }
-    };
-
-    return (
-        <div style={{ marginBottom: '10px' }}>
-            {options.map(option => (
-                <div key={option.id}>
-                    <input type="checkbox" value={option.name} checked={selectedOptions.includes(option.name)} onChange={handleCheckboxChange} />
-                    {option.name}
-                </div>
-            ))}
-        </div>
-    );
-};
 
 const Calendar: React.FC = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -135,11 +103,11 @@ const Calendar: React.FC = () => {
         setFilter({ ...filter, endDate: event.target.value });
     };
 
-    const handleCheckboxChange = (name: string, selected: string[]) => {
-        setFilter({ ...filter, [name]: selected });
+    const handleCheckboxChange = (name: string, selectedOptions: string[]) => {
+        setFilter({ ...filter, [name]: selectedOptions });
     };
 
-    const renderDayEvents = (day: number): React.ReactNode => {
+    const renderDayEvents = (day: number) => {
         const dayEvents = dummyEvents.filter(event => {
             const eventDate = new Date(event.date);
             const eventMonth = eventDate.getMonth();
@@ -158,7 +126,7 @@ const Calendar: React.FC = () => {
         });
 
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', overflowY: 'auto', height: '100%' }}>
                 {dayEvents.map(event => (
                     <div key={event.id} onClick={() => handleEventClick(event)} style={{ cursor: 'pointer', marginBottom: '4px', padding: '4px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
                         {event.name}
@@ -176,41 +144,54 @@ const Calendar: React.FC = () => {
                 <input type="text" placeholder="Search by description" value={filter.description} onChange={handleDescriptionChange} />
                 <input type="date" placeholder="Start Date" value={filter.startDate} onChange={handleStartDateChange} />
                 <input type="date" placeholder="End Date" value={filter.endDate} onChange={handleEndDateChange} />
-
-                {/* Dropdown Checkboxes */}
-                <div style={{ display: 'inline-block', marginRight: '10px' }}>
-                    <label>Types:</label>
-                    <CheckboxDropdown options={types} selectedOptions={filter.types} onChange={(selected) => handleCheckboxChange('types', selected)} />
-                </div>
-                <div style={{ display: 'inline-block', marginRight: '10px' }}>
-                    <label>Locations:</label>
-                    <CheckboxDropdown options={locations} selectedOptions={filter.locations} onChange={(selected) => handleCheckboxChange('locations', selected)} />
-                </div>
-                <div style={{ display: 'inline-block' }}>
-                    <label>Organizers:</label>
-                    <CheckboxDropdown options={organizers} selectedOptions={filter.organizers} onChange={(selected) => handleCheckboxChange('organizers', selected)} />
-                </div>
+                <CheckboxDropdown options={types} selectedOptions={filter.types} onChange={(selected: string[]) => handleCheckboxChange('types', selected)} />
+                <CheckboxDropdown options={locations} selectedOptions={filter.locations} onChange={(selected: string[]) => handleCheckboxChange('locations', selected)} />
+                <CheckboxDropdown options={organizers} selectedOptions={filter.organizers} onChange={(selected: string[]) => handleCheckboxChange('organizers', selected)} />
             </div>
 
-            {/* Calendar */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <button onClick={goToPreviousMonth}>Previous</button>
-                <h1>{monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</h1>
-                <button onClick={goToNextMonth}>Next</button>
+            {/* Month and navigation */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <button onClick={goToPreviousMonth}>&lt;</button>
+                <h2>{monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</h2>
+                <button onClick={goToNextMonth}>&gt;</button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px' }}>
-                {Array.from({ length: startDayOfWeek }, (_, index) => (
-                    <div key={`empty-${index}`} style={{ textAlign: 'center', color: '#ccc' }}>
-                        {/* Empty cells before the first day of the month */}
+            {/* Calendar grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+                {/* Weekday headers */}
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                    <div key={day} style={{ textAlign: 'center', backgroundColor: '#ffffff', padding: '10px', fontWeight: 'bold', border: '1px solid #ccc', borderRadius: '4px' }}>
+                        {day}
                     </div>
                 ))}
-                {Array.from({ length: daysInMonth }, (_, index) => (
-                    <div key={index + 1} style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '4px', cursor: 'pointer', overflowY: 'auto' }}>
-                        <div>{index + 1}</div>
-                        <div style={{ flex: '1 1 auto', overflowY: 'auto', padding: '5px' }}>{renderDayEvents(index + 1)}</div>
-                    </div>
-                ))}
+
+                {/* Days of the month */}
+                {Array.from({ length: startDayOfWeek > 0 ? daysInMonth + startDayOfWeek : daysInMonth + 6 - startDayOfWeek }).map((_, index) => {
+                    const day = index + 1 - startDayOfWeek;
+                    const isCurrentMonth = day > 0 && day <= daysInMonth;
+                    const dayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                    const isToday = isCurrentMonth && dayDate.toDateString() === new Date().toDateString();
+
+                    return (
+                        <div key={index} style={{
+                            textAlign: 'center',
+                            backgroundColor: isToday ? '#f0f0f0' : '#ffffff',
+                            padding: '10px',
+                            border: '1px solid #ccc',
+                            borderRadius: '4px',
+                            opacity: !isCurrentMonth ? 0.5 : 1,
+                            height: '100px',
+                            overflowY: 'auto',
+                        }}>
+                            {isCurrentMonth && (
+                                <>
+                                    <div>{day}</div>
+                                    {renderDayEvents(day)}
+                                </>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
