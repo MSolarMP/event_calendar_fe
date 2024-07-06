@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import loginBg from '../../../assets/login-temp-stock-bg.jpg';
+import loginBg from '../../assets/login-temp-stock-bg.jpg';
 
 export const LoginTitle = styled.h1`
     text-align: center;
