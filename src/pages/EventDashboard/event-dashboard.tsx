@@ -1,6 +1,4 @@
 import React from 'react';
-import TopBar from "../../components/Topbar/topbar";
-import {Advertisement, Container, ContentContainer, MainContent} from "./event-dashboard.style";
 import { useNavigate } from 'react-router-dom';
 
 const EventDashboard: React.FC = () => {
@@ -11,24 +9,11 @@ const EventDashboard: React.FC = () => {
     };
 
     return (
-        <Container>
-            <TopBar />
-            <ContentContainer>
-                <Advertisement>
-                    {/* Advertisement content */}
-                    Advertisement Section
-                </Advertisement>
-                <MainContent>
-                    <h2>Event Dashboard</h2>
-                    <p>Main content of the dashboard</p>
-                    <button onClick={onCalendarClick}>Go To Calendar</button>
-                </MainContent>
-                <Advertisement>
-                    {/* Advertisement content */}
-                    Advertisement Section
-                </Advertisement>
-            </ContentContainer>
-        </Container>
+        <div>
+            <h2>Event Dashboard</h2>
+            <p>Main content of the dashboard</p>
+            <button onClick={onCalendarClick}>Go To Calendar</button>
+        </div>
     );
 };
 

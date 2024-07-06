@@ -1,6 +1,4 @@
-import React from 'react';
 import styled from 'styled-components';
-
 
 export const Container = styled.div`
   display: flex;
@@ -19,11 +17,4 @@ export const ContentContainer = styled.div`
 export const Advertisement = styled.div`
   background-color: #f0f0f0;
   padding: 1rem;
-  /* Add your advertisement styles */
-`;
-
-export const MainContent = styled.div`
-  background-color: #ffffff;
-  padding: 1rem;
-  /* Add your main content styles */
 `;

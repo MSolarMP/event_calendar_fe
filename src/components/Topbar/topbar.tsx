@@ -7,8 +7,8 @@ const TopBar: React.FC = () => {
             <Logo>Event Calendar</Logo>
             <Navigation>
                 <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/">Dashboard</a></li>
+                    <li><a href="/login">Logout</a></li>
                     {/* Add more navigation links */}
                 </ul>
             </Navigation>
