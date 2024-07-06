@@ -191,8 +191,6 @@ const Calendar: React.FC = () => {
                                 border: '1px solid #ccc',
                                 borderRadius: '4px',
                                 opacity: !isCurrentMonth ? 0.5 : 1,
-                                height: '100px',
-                                width: '150px',
                                 overflowY: 'auto',
                             }}
                         >

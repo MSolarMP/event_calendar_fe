@@ -9,7 +9,7 @@ export const Container = styled.div`
 export const ContentContainer = styled.div`
   width: 100%;
   display: grid;
-  grid-template-columns: 1fr 3fr 1fr; /* Three columns: 1:1:1 ratio */
+  grid-template-columns: 1fr 7fr 1fr;
   gap: 2rem;
   margin-top: 2rem;
 `;
