@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import CheckboxDropdown from "../../components/CheckboxDropDown/checkboxDropDown"; // Import your CheckboxDropdown component here
 
 // Dummy data for events
 const dummyEvents = [
@@ -14,6 +15,7 @@ const dummyEvents = [
     { id: 10, name: 'Event 10', date: '2024-07-30', description: 'Description for Event 10', type: ['Type B'], location: ['Location B'], organizer: ['Organizer B'] },
 ];
 
+// Dummy data for locations
 const locations = [
     { id: '1', name: 'Location A' },
     { id: '2', name: 'Location B' },
@@ -46,17 +48,6 @@ interface FilterState {
     [key: string]: string | string[];
 }
 
-interface Option {
-    id: string;
-    name: string;
-}
-
-interface CheckboxDropdownProps {
-    options: Option[];
-    selectedOptions: string[];
-    onChange: (selected: string[]) => void;
-}
-
 const Calendar: React.FC = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [filter, setFilter] = useState<FilterState>({
@@ -69,13 +60,10 @@ const Calendar: React.FC = () => {
         organizers: [],
     });
 
-    console.log("filters: ",filter)
-
     const monthNames = [
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
     ];
-
 
     const getDaysInMonth = (date: Date) => {
         const year = date.getFullYear();
@@ -115,24 +103,18 @@ const Calendar: React.FC = () => {
         setFilter({ ...filter, endDate: event.target.value });
     };
 
-    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, checked } = event.target;
+    const handleCheckboxChange = (value: string, category: string, checked: boolean) => {
         let updatedFilters = { ...filter };
 
         if (checked) {
-            if (typeof updatedFilters[name] === 'string') {
-                updatedFilters[name] = [updatedFilters[name] as string, event.target.value];
-            } else if (Array.isArray(updatedFilters[name])) {
-                updatedFilters[name] = [...(updatedFilters[name] as string[]), event.target.value];
-            } else {
-                updatedFilters[name] = event.target.value;
-            }
+            updatedFilters[category] = [...(updatedFilters[category] as string[]), value];
         } else {
-            updatedFilters[name] = (updatedFilters[name] as string[]).filter((item: string) => item !== event.target.value);
+            updatedFilters[category] = (updatedFilters[category] as string[]).filter(item => item !== value);
         }
 
         setFilter(updatedFilters);
     };
+
 
     const renderDayEvents = (day: number) => {
         const dayEvents = dummyEvents.filter(event => {
@@ -153,9 +135,9 @@ const Calendar: React.FC = () => {
         });
 
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', overflowY: 'auto', height: 'fit-content' }}>
                 {dayEvents.map(event => (
-                    <div key={event.id} onClick={() => handleEventClick(event)} style={{ cursor: 'pointer', marginBottom: '4px', padding: '4px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
+                    <div key={event.id} onClick={() => handleEventClick(event)} style={{ cursor: 'pointer', marginBottom: '4px', padding: '4px', backgroundColor: '#f0f0f0' }}>
                         {event.name}
                     </div>
                 ))}
@@ -171,42 +153,9 @@ const Calendar: React.FC = () => {
                 <input type="text" placeholder="Search by description" value={filter.description} onChange={handleDescriptionChange} />
                 <input type="date" placeholder="Start Date" value={filter.startDate} onChange={handleStartDateChange} />
                 <input type="date" placeholder="End Date" value={filter.endDate} onChange={handleEndDateChange} />
-                <div>
-                    <label>
-                        Type:
-                        <input type="checkbox" name="types" value="Type A" checked={filter.types.includes('Type A')} onChange={handleCheckboxChange} />
-                        Type A
-                    </label>
-                    <label>
-                        <input type="checkbox" name="types" value="Type B" checked={filter.types.includes('Type B')} onChange={handleCheckboxChange} />
-                        Type B
-                    </label>
-                    {/* Add more types as needed */}
-                </div>
-                <div>
-                    <label>
-                        Location:
-                        <input type="checkbox" name="locations" value="Location A" checked={filter.locations.includes('Location A')} onChange={handleCheckboxChange} />
-                        Location A
-                    </label>
-                    <label>
-                        <input type="checkbox" name="locations" value="Location B" checked={filter.locations.includes('Location B')} onChange={handleCheckboxChange} />
-                        Location B
-                    </label>
-                    {/* Add more locations as needed */}
-                </div>
-                <div>
-                    <label>
-                        Organizer:
-                        <input type="checkbox" name="organizers" value="Organizer A" checked={filter.organizers.includes('Organizer A')} onChange={handleCheckboxChange} />
-                        Organizer A
-                    </label>
-                    <label>
-                        <input type="checkbox" name="organizers" value="Organizer B" checked={filter.organizers.includes('Organizer B')} onChange={handleCheckboxChange} />
-                        Organizer B
-                    </label>
-                    {/* Add more organizers as needed */}
-                </div>
+                <CheckboxDropdown options={types} selectedOptions={filter.types} onChange={(selected, checked) => handleCheckboxChange(selected, 'types', checked)} />
+                <CheckboxDropdown options={locations} selectedOptions={filter.locations} onChange={(selected, checked) => handleCheckboxChange(selected, 'locations', checked)} />
+                <CheckboxDropdown options={organizers} selectedOptions={filter.organizers} onChange={(selected, checked) => handleCheckboxChange(selected, 'organizers', checked)} />
             </div>
 
             {/* Month and navigation */}
@@ -217,19 +166,42 @@ const Calendar: React.FC = () => {
             </div>
 
             {/* Calendar grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
                 {/* Weekday headers */}
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} style={{ textAlign: 'center', backgroundColor: '#ffffff', padding: '10px', fontWeight: 'bold' }}>{day}</div>
-                ))}
-
-                {/* Days grid */}
-                {Array.from({ length: daysInMonth }, (_, index) => index + 1).map(day => (
-                    <div key={day} style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', border: '1px solid #ccc', minHeight: '120px' }}>
-                        <div style={{ flex: '0 0 auto', padding: '5px', textAlign: 'right', fontWeight: 'bold', backgroundColor: '#f0f0f0' }}>{day}</div>
-                        <div style={{ flex: '1 1 auto', overflowY: 'auto', padding: '5px' }}>{renderDayEvents(day)}</div>
+                    <div key={day} style={{ textAlign: 'center', backgroundColor: '#ffffff', padding: '10px', fontWeight: 'bold' }}>
+                        {day}
                     </div>
                 ))}
+
+                {/* Days of the month */}
+                {Array.from({ length: startDayOfWeek > 0 ? daysInMonth + startDayOfWeek : daysInMonth + 6 - startDayOfWeek }).map((_, index) => {
+                    const day = index + 1 - startDayOfWeek;
+                    const isCurrentMonth = day > 0 && day <= daysInMonth;
+                    const dayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                    const isToday = isCurrentMonth && dayDate.toDateString() === new Date().toDateString();
+
+                    return (
+                        <div
+                            key={index}
+                            style={{
+                                textAlign: 'center',
+                                backgroundColor: isToday ? '#f0f0f0' : '#ffffff',
+                                padding: '10px',
+                                border: '1px solid #ccc',
+                                opacity: !isCurrentMonth ? 0.5 : 1,
+                                overflowY: 'auto',
+                            }}
+                        >
+                            {isCurrentMonth && (
+                                <>
+                                    <div>{day}</div>
+                                    {renderDayEvents(day)}
+                                </>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
