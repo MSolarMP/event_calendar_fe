@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import CheckboxDropdown from "../../components/CheckboxDropDown/checkboxDropDown"; // Import your CheckboxDropdown component here
+import { getAllEvents, createEvent } from '../../api/events.service';
 
 // Dummy data for events
 const dummyEvents = [
@@ -49,6 +50,23 @@ interface FilterState {
 }
 
 const Calendar: React.FC = () => {
+    const [events, setEvents] = useState([]);
+
+    useEffect(() => {
+        async function fetchEvents() {
+            try {
+                const fetchedEvents = await getAllEvents();
+                setEvents(fetchedEvents);
+            } catch (error) {
+                console.error('Error fetching events:', error);
+            }
+        }
+
+        fetchEvents();
+    }, []);
+
+    console.log("events: ",events)
+
     const [currentDate, setCurrentDate] = useState(new Date());
     const [filter, setFilter] = useState<FilterState>({
         name: '',
