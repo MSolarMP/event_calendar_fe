@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:3001/category';
 
-export const getAllEvents = async () => {
+export const getAllCategorys = async () => {
     try {
         const response = await axios.get(API_URL);
         return response.data;

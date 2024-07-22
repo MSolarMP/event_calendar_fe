@@ -1,6 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import CheckboxDropdown from "../../components/CheckboxDropDown/checkboxDropDown"; // Import your CheckboxDropdown component here
 import { getAllEvents, createEvent } from '../../api/events.service';
+import {getAllLocations} from "../../api/location.service";
+import {getAllOrganisers} from "../../api/organiser.service";
+import {getAllCategorys} from "../../api/category.service";
 
 // Dummy data for events
 const dummyEvents = [
@@ -51,12 +54,22 @@ interface FilterState {
 
 const Calendar: React.FC = () => {
     const [events, setEvents] = useState([]);
+    const [locations, setLocations] = useState([]);
+    const [organisers, setOrganisers] = useState([]);
+    const [categories, setCategories] = useState([]);
 
     useEffect(() => {
         async function fetchEvents() {
             try {
                 const fetchedEvents = await getAllEvents();
+                const fetchedLocations = await getAllLocations();
+                const fetchedOrganisers = await getAllOrganisers();
+                const fetchedCategorys = await getAllCategorys();
+
                 setEvents(fetchedEvents);
+                setLocations(fetchedLocations);
+                setOrganisers(fetchedOrganisers);
+                setCategories(fetchedCategorys);
             } catch (error) {
                 console.error('Error fetching events:', error);
             }
@@ -66,6 +79,9 @@ const Calendar: React.FC = () => {
     }, []);
 
     console.log("events: ",events)
+    console.log("locations: ",locations)
+    console.log("organisers: ",organisers)
+    console.log("categories: ",categories)
 
     const [currentDate, setCurrentDate] = useState(new Date());
     const [filter, setFilter] = useState<FilterState>({
