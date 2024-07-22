@@ -6,15 +6,14 @@ import {getAllOrganisers} from "../../api/organiser.service";
 import {getAllCategorys} from "../../api/category.service";
 
 // Define filter state with correct types
-interface FilterState {
+interface Filter {
     name: string;
     description: string;
     startDate: string;
     endDate: string;
-    types: string[];
-    locations: string[];
-    organizers: string[];
-    [key: string]: string | string[];
+    category: number[]; // Store category IDs
+    locations: number[]; // Store location IDs
+    organizers: number[]; // Store organizer IDs
 }
 
 interface Event {
@@ -27,11 +26,36 @@ interface Event {
     locationId: number;
 }
 
+interface Location {
+    id: number;
+    name: string;
+}
+
+interface Organiser {
+    id: number;
+    name: string;
+}
+
+interface Category {
+    id: number;
+    name: string;
+}
+
+interface Option {
+    id: number;
+    name: string;
+}
+
+interface CheckboxDropdownProps {
+    options: Option[];
+    selectedOptions: number[];
+    onChange: (id: number, checked: boolean) => void;
+}
 const Calendar: React.FC = () => {
     const [events, setEvents] = useState<Event[]>([]);
-    const [locations, setLocations] = useState([]);
-    const [organisers, setOrganisers] = useState([]);
-    const [categories, setCategories] = useState([]);
+    const [locations, setLocations] = useState<Location[]>([]);
+    const [organisers, setOrganisers] = useState<Organiser[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
 
     useEffect(() => {
         async function fetchEvents() {
@@ -53,20 +77,16 @@ const Calendar: React.FC = () => {
         fetchEvents();
     }, []);
 
-    console.log("events: ",events)
-    console.log("locations: ",locations)
-    console.log("organisers: ",organisers)
-    console.log("categories: ",categories)
-
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [filter, setFilter] = useState<FilterState>({
+
+    const [filter, setFilter] = useState<Filter>({
         name: '',
         description: '',
         startDate: '',
         endDate: '',
-        types: [],
+        category: [],
         locations: [],
-        organizers: [],
+        organizers: []
     });
 
     const monthNames = [
@@ -112,16 +132,31 @@ const Calendar: React.FC = () => {
         setFilter({ ...filter, endDate: event.target.value });
     };
 
-    const handleCheckboxChange = (value: string, category: string, checked: boolean) => {
-        let updatedFilters = { ...filter };
+    const handleCategoryCheckboxChange = (id: number, checked: boolean) => {
+        setFilter(prevFilter => ({
+            ...prevFilter,
+            category: checked
+                ? [...prevFilter.category, id]
+                : prevFilter.category.filter(item => item !== id)
+        }));
+    };
 
-        if (checked) {
-            updatedFilters[category] = [...(updatedFilters[category] as string[]), value];
-        } else {
-            updatedFilters[category] = (updatedFilters[category] as string[]).filter(item => item !== value);
-        }
+    const handleLocationCheckboxChange = (id: number, checked: boolean) => {
+        setFilter(prevFilter => ({
+            ...prevFilter,
+            locations: checked
+                ? [...prevFilter.locations, id]
+                : prevFilter.locations.filter(item => item !== id)
+        }));
+    };
 
-        setFilter(updatedFilters);
+    const handleOrganizerCheckboxChange = (id: number, checked: boolean) => {
+        setFilter(prevFilter => ({
+            ...prevFilter,
+            organizers: checked
+                ? [...prevFilter.organizers, id]
+                : prevFilter.organizers.filter(item => item !== id)
+        }));
     };
 
 
@@ -138,9 +173,9 @@ const Calendar: React.FC = () => {
                 && (event.title.toLowerCase().includes(filter.name.toLowerCase()) || event.description.toLowerCase().includes(filter.description.toLowerCase()))
                 && (filter.startDate === '' || new Date(event.date) >= new Date(filter.startDate))
                 && (filter.endDate === '' || new Date(event.date) <= new Date(filter.endDate))
-                && (filter.types.length === 0 || filter.types.includes(event.eventTypeID.toString()))
-                && (filter.locations.length === 0 || filter.locations.includes(event.locationId.toString()))
-                && (filter.organizers.length === 0 || filter.organizers.includes(event.organiserID.toString()));
+                && (filter.category.length === 0 || filter.category.includes(event.eventTypeID))
+                && (filter.locations.length === 0 || filter.locations.includes(event.locationId))
+                && (filter.organizers.length === 0 || filter.organizers.includes(event.organiserID));
         });
 
         return (
@@ -154,6 +189,28 @@ const Calendar: React.FC = () => {
         );
     };
 
+    const CheckboxDropdown: React.FC<CheckboxDropdownProps> = ({ options, selectedOptions, onChange }) => {
+        const handleChange = (id: number, event: React.ChangeEvent<HTMLInputElement>) => {
+            onChange(id, event.target.checked);
+        };
+
+        return (
+            <div>
+                {options.map(option => (
+                    <label key={option.id}>
+                        <input
+                            type="checkbox"
+                            checked={selectedOptions.includes(option.id)}
+                            onChange={(e) => handleChange(option.id, e)}
+                        />
+                        {option.name}
+                    </label>
+                ))}
+            </div>
+        );
+    };
+
+
     return (
         <div style={{ fontFamily: 'Arial, sans-serif' }}>
             {/* Filters */}
@@ -162,9 +219,21 @@ const Calendar: React.FC = () => {
                 <input type="text" placeholder="Search by description" value={filter.description} onChange={handleDescriptionChange} />
                 <input type="date" placeholder="Start Date" value={filter.startDate} onChange={handleStartDateChange} />
                 <input type="date" placeholder="End Date" value={filter.endDate} onChange={handleEndDateChange} />
-                <CheckboxDropdown options={categories} selectedOptions={filter.types} onChange={(selected, checked) => handleCheckboxChange(selected, 'types', checked)} />
-                <CheckboxDropdown options={locations} selectedOptions={filter.locations} onChange={(selected, checked) => handleCheckboxChange(selected, 'locations', checked)} />
-                <CheckboxDropdown options={organisers} selectedOptions={filter.organizers} onChange={(selected, checked) => handleCheckboxChange(selected, 'organizers', checked)} />
+                <CheckboxDropdown
+                    options={categories.map(cat => ({ id: cat.id, name: cat.name }))}
+                    selectedOptions={filter.category}
+                    onChange={(id, checked) => handleCategoryCheckboxChange(id, checked)}
+                />
+                <CheckboxDropdown
+                    options={locations.map(loc => ({ id: loc.id, name: loc.name }))}
+                    selectedOptions={filter.locations}
+                    onChange={(id, checked) => handleLocationCheckboxChange(id, checked)}
+                />
+                <CheckboxDropdown
+                    options={organisers.map(org => ({ id: org.id, name: org.name }))}
+                    selectedOptions={filter.organizers}
+                    onChange={(id, checked) => handleOrganizerCheckboxChange(id, checked)}
+                />
             </div>
 
             {/* Month and navigation */}
