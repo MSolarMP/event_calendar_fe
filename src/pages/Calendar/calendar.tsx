@@ -120,10 +120,6 @@ const Calendar: React.FC = () => {
         setFilter({ ...filter, name: event.target.value });
     };
 
-    const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setFilter({ ...filter, description: event.target.value });
-    };
-
     const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFilter({ ...filter, startDate: event.target.value });
     };
@@ -159,7 +155,6 @@ const Calendar: React.FC = () => {
         }));
     };
 
-
     const renderDayEvents = (day: number) => {
         const dayEvents = events.filter(event => {
             const eventDate = new Date(event.date);
@@ -169,13 +164,18 @@ const Calendar: React.FC = () => {
             const filterYear = currentDate.getFullYear();
 
             // Check if event is in the current month and matches filters
-            return eventDate.getDate() === day && eventMonth === filterMonth && eventYear === filterYear
-                && (event.title.toLowerCase().includes(filter.name.toLowerCase()) || event.description.toLowerCase().includes(filter.description.toLowerCase()))
-                && (filter.startDate === '' || new Date(event.date) >= new Date(filter.startDate))
-                && (filter.endDate === '' || new Date(event.date) <= new Date(filter.endDate))
-                && (filter.category.length === 0 || filter.category.includes(event.eventTypeID))
-                && (filter.locations.length === 0 || filter.locations.includes(event.locationId))
-                && (filter.organizers.length === 0 || filter.organizers.includes(event.organiserID));
+            return (
+                eventDate.getDate() === day &&
+                eventMonth === filterMonth &&
+                eventYear === filterYear &&
+                (filter.name === '' || event.title.toLowerCase().includes(filter.name.toLowerCase())) &&
+                (filter.description === '' || event.description.toLowerCase().includes(filter.description.toLowerCase())) &&
+                (filter.startDate === '' || new Date(event.date) >= new Date(filter.startDate)) &&
+                (filter.endDate === '' || new Date(event.date) <= new Date(filter.endDate)) &&
+                (filter.category.length === 0 || filter.category.includes(event.eventTypeID)) &&
+                (filter.locations.length === 0 || filter.locations.includes(event.locationId)) &&
+                (filter.organizers.length === 0 || filter.organizers.includes(event.organiserID))
+            );
         });
 
         return (
@@ -215,8 +215,13 @@ const Calendar: React.FC = () => {
         <div style={{ fontFamily: 'Arial, sans-serif' }}>
             {/* Filters */}
             <div style={{ marginBottom: '10px' }}>
-                <input type="text" placeholder="Search by name" value={filter.name} onChange={handleNameChange} />
-                <input type="text" placeholder="Search by description" value={filter.description} onChange={handleDescriptionChange} />
+                <input
+                    type="text"
+                    placeholder="Search by name"
+                    value={filter.name}
+                    onChange={handleNameChange}
+                />
+
                 <input type="date" placeholder="Start Date" value={filter.startDate} onChange={handleStartDateChange} />
                 <input type="date" placeholder="End Date" value={filter.endDate} onChange={handleEndDateChange} />
                 <CheckboxDropdown
