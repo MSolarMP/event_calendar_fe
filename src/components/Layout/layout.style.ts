@@ -8,10 +8,10 @@ export const Container = styled.div`
 
 export const ContentContainer = styled.div`
   width: 100%;
+  height: 100vh;
   display: grid;
   grid-template-columns: 1fr 7fr 1fr;
   gap: 2rem;
-  margin-top: 2rem;
 `;
 
 export const Advertisement = styled.div`

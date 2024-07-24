@@ -47,10 +47,11 @@ interface Option {
 }
 
 interface CheckboxDropdownProps {
-    options: Option[];
+    options: { id: number; name: string }[];
     selectedOptions: number[];
     onChange: (id: number, checked: boolean) => void;
 }
+
 const Calendar: React.FC = () => {
     const [events, setEvents] = useState<Event[]>([]);
     const [locations, setLocations] = useState<Location[]>([]);
@@ -189,30 +190,9 @@ const Calendar: React.FC = () => {
         );
     };
 
-    const CheckboxDropdown: React.FC<CheckboxDropdownProps> = ({ options, selectedOptions, onChange }) => {
-        const handleChange = (id: number, event: React.ChangeEvent<HTMLInputElement>) => {
-            onChange(id, event.target.checked);
-        };
-
-        return (
-            <div>
-                {options.map(option => (
-                    <label key={option.id}>
-                        <input
-                            type="checkbox"
-                            checked={selectedOptions.includes(option.id)}
-                            onChange={(e) => handleChange(option.id, e)}
-                        />
-                        {option.name}
-                    </label>
-                ))}
-            </div>
-        );
-    };
-
 
     return (
-        <div style={{ fontFamily: 'Arial, sans-serif' }}>
+        <div style={{ fontFamily: 'Arial, sans-serif', marginTop: '2em' }}>
             {/* Filters */}
             <div style={{ marginBottom: '10px' }}>
                 <input
@@ -224,21 +204,27 @@ const Calendar: React.FC = () => {
 
                 <input type="date" placeholder="Start Date" value={filter.startDate} onChange={handleStartDateChange} />
                 <input type="date" placeholder="End Date" value={filter.endDate} onChange={handleEndDateChange} />
-                <CheckboxDropdown
-                    options={categories.map(cat => ({ id: cat.id, name: cat.name }))}
-                    selectedOptions={filter.category}
-                    onChange={(id, checked) => handleCategoryCheckboxChange(id, checked)}
-                />
-                <CheckboxDropdown
-                    options={locations.map(loc => ({ id: loc.id, name: loc.name }))}
-                    selectedOptions={filter.locations}
-                    onChange={(id, checked) => handleLocationCheckboxChange(id, checked)}
-                />
-                <CheckboxDropdown
-                    options={organisers.map(org => ({ id: org.id, name: org.name }))}
-                    selectedOptions={filter.organizers}
-                    onChange={(id, checked) => handleOrganizerCheckboxChange(id, checked)}
-                />
+
+                <div style = {{ display: 'flex', flexDirection: 'row', gap: '8px'}}>
+                    <CheckboxDropdown
+                        options={categories.map(cat => ({ id: cat.id, name: cat.name }))}
+                        selectedOptions={filter.category}
+                        onChange={handleCategoryCheckboxChange}
+                        placeholder="Filter by Category"
+                    />
+                    <CheckboxDropdown
+                        options={locations.map(loc => ({ id: loc.id, name: loc.name }))}
+                        selectedOptions={filter.locations}
+                        onChange={handleLocationCheckboxChange}
+                        placeholder="Filter by Location"
+                    />
+                    <CheckboxDropdown
+                        options={organisers.map(org => ({ id: org.id, name: org.name }))}
+                        selectedOptions={filter.organizers}
+                        onChange={handleOrganizerCheckboxChange}
+                        placeholder="Filter by Organizer"
+                    />
+                </div>
             </div>
 
             {/* Month and navigation */}
