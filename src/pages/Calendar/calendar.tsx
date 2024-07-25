@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import CheckboxDropdown from "../../components/CheckboxDropDown/checkboxDropDown"; // Import your CheckboxDropdown component here
-import { getAllEvents, createEvent } from '../../api/events.service';
+import { getAllEvents } from '../../api/events.service';
 import {getAllLocations} from "../../api/location.service";
 import {getAllOrganisers} from "../../api/organiser.service";
 import {getAllCategorys} from "../../api/category.service";
+import Drawer from "../../components/Drawer/drawer";
 
 // Define filter state with correct types
 interface Filter {
@@ -41,22 +42,13 @@ interface Category {
     name: string;
 }
 
-interface Option {
-    id: number;
-    name: string;
-}
-
-interface CheckboxDropdownProps {
-    options: { id: number; name: string }[];
-    selectedOptions: number[];
-    onChange: (id: number, checked: boolean) => void;
-}
-
 const Calendar: React.FC = () => {
     const [events, setEvents] = useState<Event[]>([]);
     const [locations, setLocations] = useState<Location[]>([]);
     const [organisers, setOrganisers] = useState<Organiser[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [selectedEvent, setSelectedEvent] = useState<any>(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     useEffect(() => {
         async function fetchEvents() {
@@ -113,8 +105,13 @@ const Calendar: React.FC = () => {
     };
 
     const handleEventClick = (event: any) => {
-        console.log('Clicked event:', event);
-        // Add logic to open event details or perform other actions
+        setSelectedEvent(event);
+        setIsDrawerOpen(true);
+    };
+
+    const closeDrawer = () => {
+        setIsDrawerOpen(false);
+        setSelectedEvent(null);
     };
 
     const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -272,6 +269,8 @@ const Calendar: React.FC = () => {
                     );
                 })}
             </div>
+
+            <Drawer event={selectedEvent} isOpen={isDrawerOpen} onClose={closeDrawer} />
         </div>
     );
 };
