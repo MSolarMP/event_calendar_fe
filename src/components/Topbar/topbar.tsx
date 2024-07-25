@@ -8,8 +8,8 @@ const TopBar: React.FC = () => {
             <Navigation>
                 <ul>
                     <li><a href="/">Dashboard</a></li>
+                    <li><a href="/calendar">Calendar</a></li>
                     <li><a href="/login">Logout</a></li>
-                    {/* Add more navigation links */}
                 </ul>
             </Navigation>
         </Container>

@@ -1,20 +1,19 @@
 import React, {useEffect, useState} from 'react';
-import CheckboxDropdown from "../../components/CheckboxDropDown/checkboxDropDown"; // Import your CheckboxDropdown component here
+import CheckboxDropdown from "../../components/CheckboxDropDown/checkboxDropDown";
 import { getAllEvents } from '../../api/events.service';
 import {getAllLocations} from "../../api/location.service";
 import {getAllOrganisers} from "../../api/organiser.service";
 import {getAllCategorys} from "../../api/category.service";
 import Drawer from "../../components/Drawer/drawer";
 
-// Define filter state with correct types
 interface Filter {
     name: string;
     description: string;
     startDate: string;
     endDate: string;
-    category: number[]; // Store category IDs
-    locations: number[]; // Store location IDs
-    organizers: number[]; // Store organizer IDs
+    category: number[];
+    locations: number[];
+    organizers: number[];
 }
 
 interface Event {
@@ -161,7 +160,6 @@ const Calendar: React.FC = () => {
             const filterMonth = currentDate.getMonth();
             const filterYear = currentDate.getFullYear();
 
-            // Check if event is in the current month and matches filters
             return (
                 eventDate.getDate() === day &&
                 eventMonth === filterMonth &&
@@ -190,7 +188,6 @@ const Calendar: React.FC = () => {
 
     return (
         <div style={{ fontFamily: 'Arial, sans-serif', marginTop: '2em' }}>
-            {/* Filters */}
             <div style={{ marginBottom: '10px' }}>
                 <input
                     type="text"
@@ -224,23 +221,19 @@ const Calendar: React.FC = () => {
                 </div>
             </div>
 
-            {/* Month and navigation */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                 <button onClick={goToPreviousMonth}>&lt;</button>
                 <h2>{monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</h2>
                 <button onClick={goToNextMonth}>&gt;</button>
             </div>
 
-            {/* Calendar grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
-                {/* Weekday headers */}
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                     <div key={day} style={{ textAlign: 'center', backgroundColor: '#ffffff', padding: '10px', fontWeight: 'bold' }}>
                         {day}
                     </div>
                 ))}
 
-                {/* Days of the month */}
                 {Array.from({ length: startDayOfWeek > 0 ? daysInMonth + startDayOfWeek : daysInMonth + 6 - startDayOfWeek }).map((_, index) => {
                     const day = index + 1 - startDayOfWeek;
                     const isCurrentMonth = day > 0 && day <= daysInMonth;
