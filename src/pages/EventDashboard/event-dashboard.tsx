@@ -1,9 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {getAllEvents} from "../../api/events.service";
-import {getAllLocations} from "../../api/location.service";
-import {getAllOrganisers} from "../../api/organiser.service";
-import {getAllCategorys} from "../../api/category.service";
+import { getAllEvents } from "../../api/events.service";
 
 interface Event {
     id: number;
@@ -14,6 +11,8 @@ interface Event {
     organiserID: number;
     locationId: number;
     featured: boolean;
+    featuredRate?: number;
+    createdAt: string;
 }
 
 const EventDashboard: React.FC = () => {
@@ -30,10 +29,26 @@ const EventDashboard: React.FC = () => {
         async function fetchEvents() {
             try {
                 const fetchedEvents = await getAllEvents();
-                const featuredEvents = fetchedEvents.filter((event: { featured: any; }) => event.featured);
-                const sortedFeaturedEvents = featuredEvents.sort((a: { date: string | number | Date; }, b: { date: string | number | Date; }) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                setEvents(sortedFeaturedEvents);
-                setTopEvents(sortedFeaturedEvents.slice(0, 5));
+
+                // Separate featured events from non-featured ones
+                const featuredEvents = fetchedEvents.filter((event: Event) => event.featured);
+                const nonFeaturedEvents = fetchedEvents.filter((event: Event) => !event.featured);
+
+                // Sort featured events by featuredRate in descending order
+                const sortedFeaturedEvents = featuredEvents
+                    .sort((a: { featuredRate: any; }, b: { featuredRate: any; }) => (b.featuredRate ?? 0) - (a.featuredRate ?? 0));
+
+                // If there are featured events with rate above 0, show top 5 of those
+                if (sortedFeaturedEvents.some((event: { featuredRate: any; }) => (event.featuredRate ?? 0) > 0)) {
+                    setTopEvents(sortedFeaturedEvents.slice(0, 5)); // Get the top 5 featured events
+                } else {
+                    // If no featured event has rate above 0, sort by date and get the newest 5 events
+                    const sortedNewestEvents = featuredEvents
+                        .sort((a: Event, b: Event) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                    setTopEvents(sortedNewestEvents.slice(0, 5));
+                }
+
+                setEvents(fetchedEvents); // Store all events (optional)
             } catch (error) {
                 console.error('Error fetching events:', error);
             }
@@ -48,7 +63,7 @@ const EventDashboard: React.FC = () => {
             <p>Main content of the dashboard</p>
             <button onClick={onCalendarClick}>Go To Calendar</button>
 
-            <h3>Top 5 Featured Events</h3>
+            <h3>Featured Events</h3>
             <ul>
                 {topEvents.map(event => (
                     <li key={event.id}>
