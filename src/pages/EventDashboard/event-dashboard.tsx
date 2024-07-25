@@ -13,21 +13,7 @@ interface Event {
     date: string;
     organiserID: number;
     locationId: number;
-}
-
-interface Location {
-    id: number;
-    name: string;
-}
-
-interface Organiser {
-    id: number;
-    name: string;
-}
-
-interface Category {
-    id: number;
-    name: string;
+    featured: boolean;
 }
 
 const EventDashboard: React.FC = () => {
@@ -44,10 +30,10 @@ const EventDashboard: React.FC = () => {
         async function fetchEvents() {
             try {
                 const fetchedEvents = await getAllEvents();
-                // Sort events by date in descending order and pick the top 5
-                const sortedEvents = fetchedEvents.sort((a: { date: string | number | Date; }, b: { date: string | number | Date; }) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                setEvents(sortedEvents);
-                setTopEvents(sortedEvents.slice(0, 5)); // Get the top 5 events
+                const featuredEvents = fetchedEvents.filter((event: { featured: any; }) => event.featured);
+                const sortedFeaturedEvents = featuredEvents.sort((a: { date: string | number | Date; }, b: { date: string | number | Date; }) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                setEvents(sortedFeaturedEvents);
+                setTopEvents(sortedFeaturedEvents.slice(0, 5));
             } catch (error) {
                 console.error('Error fetching events:', error);
             }
@@ -62,7 +48,7 @@ const EventDashboard: React.FC = () => {
             <p>Main content of the dashboard</p>
             <button onClick={onCalendarClick}>Go To Calendar</button>
 
-            <h3>Top 5 Recent Events</h3>
+            <h3>Top 5 Featured Events</h3>
             <ul>
                 {topEvents.map(event => (
                     <li key={event.id}>
